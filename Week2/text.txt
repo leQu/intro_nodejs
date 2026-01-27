@@ -1,0 +1,11 @@
+
+Detta är ett test för min första pull request.
+
+Här ska jag testa att skriva några rader och sedan öva på följande;
+
+ur Lektion 2:
+Middleware och statiska filer:
+Skapa en middleware som loggar varje inkommande förfrågning (metod och URL)
+
+Tex: Middleware som loggar varje inkommande förfrågning:
+
