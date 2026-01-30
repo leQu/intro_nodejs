@@ -1,0 +1,10 @@
+{
+  "name": "Super cool app",
+  "description": "This is a sample JSON file for demonstration purposes.",
+  "version": "1.0.0",
+  "items": [
+    { "id": 1, "value": "Item One" },
+    { "id": 2, "value": "Item Two" },
+    { "id": 3, "value": "Item Three" }
+  ]
+}
