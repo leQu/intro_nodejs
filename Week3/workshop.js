@@ -1,5 +1,5 @@
 import fsPromise from "fs/promises";
-import fsCallback, { read } from "fs";
+import fsCallback from "fs";
 
 /*
     UPPGIFT 1:

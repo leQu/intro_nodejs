@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authorization } from "../middleware/index.js";
+import { makeMessagesLookTheWayIwant } from "../transforms/messages.js";
 
 const router = Router();
 
@@ -9,7 +10,7 @@ router.get("/admin", authorization, (req, res) => {
 
 router.get("/", (req, res) => {
   // Give us a html file"
-  res.send("Hello, World!");
+  res.send("<html><body><h1>Welcome to our About Us page!</h1></body></html>");
 });
 
 router.post("/login", (req, res) => {
@@ -22,9 +23,18 @@ router.post("/login", (req, res) => {
   }
 });
 
-router.get("/messages", (req, res) => {
+router.get("/messages", async (req, res) => {
   // Return all messages from a database
-  res.send("Here are some messages");
+
+  try {
+    const response = await fetch("https://dummyjson.com/products/2");
+    const data = await response.json();
+    res.json(data);
+    //res.json(makeMessagesLookTheWayIwant(data));
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(400).send("Error fetching messages");
+  }
 });
 
 router.post("/messages", (req, res) => {
