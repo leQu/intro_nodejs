@@ -36,6 +36,21 @@ router.get("/messages", async (req, res) => {
     res.status(400).send("Error fetching messages");
   }
 });
+/*
+  router.put("/userinformation/:id", (req, res) => {
+    const userId = req.params.id;
+    const updatedInfo = req.body; // { city: "New City" }
+
+  const updateSingleUser = await User.findOneAndUpdate(
+      { id: userId },
+      { city: updatedInfo.city },
+      { new: true },
+    );
+
+    // Update user information in the database
+    res.send(`User information for user ${userId} updated`);
+  });
+*/
 
 router.post("/messages", (req, res) => {
   // Save a new message to the database
