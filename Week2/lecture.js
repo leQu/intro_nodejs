@@ -39,7 +39,7 @@ app.get("/om-oss", (req, res) => {
 app.get("/kontakt", (req, res) => {
   /*
     1. Hämta information från DB
-    2. Trnsformera data
+    2. Transformera data
   */
 
   res.status(200).send("Kontakta oss på info@example.com");
