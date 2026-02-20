@@ -1,5 +1,8 @@
 import express from "express";
+import bcrypt from "bcrypt";
+import jsonwebtoken from "jsonwebtoken";
 
+import { Credentials } from "./models/User.js";
 import { users } from "./routes/index.js";
 import middleware from "./middleware/index.js";
 import {
@@ -10,10 +13,39 @@ import {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = "your_jwt_secret_key";
 
 middleware(app);
 
-app.use("/api/users", users);
+app.use("/users", users);
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
+
+  const user = await Credentials.findOne({ username });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  const userJwtToken = jsonwebtoken.sign(
+    { userId: user._id, role: user.role },
+    JWT_SECRET,
+    { expiresIn: "1h" },
+  );
+  res.status(200).json({ token: userJwtToken });
+});
 
 async function startServer() {
   await connectToDatabase();

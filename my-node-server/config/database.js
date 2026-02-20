@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-import User from "../models/User.js";
+import { User, Credentials } from "../models/User.js";
 
 let mongoServer;
 export async function connectToDatabase() {
@@ -34,4 +35,12 @@ export async function populateMockData() {
     { name: "Charlie", location: "Chicago" },
     { name: "David", location: "Houston" },
   ]);
+
+  await createCredentialsUser("alex", "adminpassword", "admin");
+  await createCredentialsUser("noob", "userpassword");
+}
+
+async function createCredentialsUser(username, password, role = "user") {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await Credentials.create({ username, password: hashedPassword, role });
 }

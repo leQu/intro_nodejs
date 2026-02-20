@@ -5,6 +5,11 @@ const userSchema = new mongoose.Schema({
   location: String,
 });
 
-const User = mongoose.model("User", userSchema);
+const credentialsSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["user", "admin"], default: "user" },
+});
 
-export default User;
+export const User = mongoose.model("User", userSchema);
+export const Credentials = mongoose.model("Credentials", credentialsSchema);

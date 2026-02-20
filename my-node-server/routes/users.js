@@ -1,10 +1,11 @@
 import { Router } from "express";
 
-import User from "../models/User.js";
+import { User } from "../models/User.js";
+import { authentication } from "../middleware/index.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
+router.get("/", authentication, async (req, res) => {
   const location = req.query.location; // e.g., /users?location=NYC
   if (location) {
     console.log(location);
@@ -19,7 +20,10 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authentication, async (req, res) => {
+  /*
+    TODO: Make the ID in User table match ID in credentials table.
+  */
   const userId = req.params.id;
   // Return a specific user from a database
   try {
@@ -31,7 +35,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authentication, async (req, res) => {
   const newUser = req.body; // { name: "Eve", location: "LA" }
   try {
     const createdUser = await User.create(newUser); // INSERT INTO users (name, location) VALUES (?, ?)
@@ -42,7 +46,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authentication, async (req, res) => {
   const userId = req.params.id;
   const updatedInfo = req.body; // { name: "New Name", location: "New Location" }
   try {
@@ -56,7 +60,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authentication, async (req, res) => {
   const userId = req.params.id;
   try {
     await User.findByIdAndDelete(userId); // DELETE FROM users WHERE id = ?
