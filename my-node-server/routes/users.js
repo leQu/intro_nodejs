@@ -78,3 +78,5 @@ PUT /users/:id: Uppdatera en användare.
 DELETE /users/:id: Ta bort en användare.
 
 */
+
+// await pool.query("SELECT * FROM shoes WHERE brand = $1", [userInput]); // This is a parameterized query that prevents SQL injection

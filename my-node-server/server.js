@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 middleware(app);
 
-app.use("/users", users);
+app.use("/api/users", users);
 
 async function startServer() {
   await connectToDatabase();
