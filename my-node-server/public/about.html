@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About | My Node Server</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>My Node Server</h1>
+      <nav>
+        <a id="userName" href="/">Home</a>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h2>About This Project</h2>
+        <p>
+          A simple Node.js and Express server with user authentication, a
+          MongoDB database, and JWT-protected routes.
+        </p>
+        <a href="/" class="btn">Go Home</a>
+      </section>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>REST API</h3>
+          <p>CRUD endpoints for managing users via <code>/users</code>.</p>
+        </div>
+        <div class="card">
+          <h3>Login</h3>
+          <p>Authenticate via <code>POST /login</code> to receive a JWT.</p>
+        </div>
+        <div class="card">
+          <h3>Middleware</h3>
+          <p>Custom middleware for request parsing and auth verification.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 My Node Server</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+  </body>
+
+  <script>
+    async function fetchUserDetails() {
+      const response = await fetch("/api/users/details", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const userData = await response.json();
+      console.log("User details response:", userData);
+
+      const userNameElement = document.getElementById("userName");
+      if (userNameElement && userData.name) {
+        userNameElement.textContent = `${userData.name}`;
+      }
+    }
+
+    fetchUserDetails();
+  </script>
+</html>

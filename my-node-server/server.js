@@ -1,6 +1,8 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import { Credentials } from "./models/User.js";
 import { users } from "./routes/index.js";
@@ -11,15 +13,18 @@ import {
   populateMockData,
 } from "./config/database.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = "your_jwt_secret_key";
 
 middleware(app);
 
-app.use("/users", users);
-
-app.post("/login", async (req, res) => {
+app.use("/api/users", users);
+app.post("/api/login", async (req, res) => {
+  console.log(req.body);
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -39,12 +44,44 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const userJwtToken = jsonwebtoken.sign(
-    { userId: user._id, role: user.role },
+  const userJwt = jsonwebtoken.sign(
+    { userId: user.userId, role: user.role },
     JWT_SECRET,
     { expiresIn: "1h" },
   );
-  res.status(200).json({ token: userJwtToken });
+
+  res
+    .status(200)
+    .cookie("accessToken", userJwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    })
+    .json({ message: "Login successful" });
+});
+
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logout successful" });
+});
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "about.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 async function startServer() {

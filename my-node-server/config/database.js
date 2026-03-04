@@ -36,11 +36,27 @@ export async function populateMockData() {
     { name: "David", location: "Houston" },
   ]);
 
-  await createCredentialsUser("alex", "adminpassword", "admin");
-  await createCredentialsUser("noob", "userpassword");
+  await createCredentialsUser("Alex", "NYC", "alex", "adminpassword", "admin");
+  await createCredentialsUser("Elex", "Stockholm", "noob", "userpassword");
 }
 
-async function createCredentialsUser(username, password, role = "user") {
+async function createCredentialsUser(
+  name,
+  location,
+  username,
+  password,
+  role = "user",
+) {
+  const user = await User.create({ name, location });
+
+  console.log("Created user:", user);
+
   const hashedPassword = await bcrypt.hash(password, 10);
-  await Credentials.create({ username, password: hashedPassword, role });
+  const credser = await Credentials.create({
+    userId: user._id,
+    username,
+    password: hashedPassword,
+    role,
+  });
+  console.log("Created credentials:", credser);
 }

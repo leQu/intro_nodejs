@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { User } from "../models/User.js";
-import { authentication } from "../middleware/index.js";
+import { authentication, authorize } from "../middleware/index.js";
 
 const router = Router();
 
@@ -20,14 +20,13 @@ router.get("/", authentication, async (req, res) => {
   }
 });
 
-router.get("/:id", authentication, async (req, res) => {
-  /*
-    TODO: Make the ID in User table match ID in credentials table.
-  */
-  const userId = req.params.id;
+router.get("/details", authentication, async (req, res) => {
+  const userId = req.user.userId;
   // Return a specific user from a database
+  console.log("Authenticated user ID:", userId);
   try {
     const user = await User.findById(userId); // SELECT * from users WHERE id = ?
+    console.log(user);
     res.status(200).json(user);
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -60,16 +59,21 @@ router.put("/:id", authentication, async (req, res) => {
   }
 });
 
-router.delete("/:id", authentication, async (req, res) => {
-  const userId = req.params.id;
-  try {
-    await User.findByIdAndDelete(userId); // DELETE FROM users WHERE id = ?
-    res.status(204).send();
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+router.delete(
+  "/:id",
+  authentication,
+  authorize(["delete"]),
+  async (req, res) => {
+    const userId = req.params.id;
+    try {
+      await User.findByIdAndDelete(userId); // DELETE FROM users WHERE id = ?
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+);
 
 export default router;
 
