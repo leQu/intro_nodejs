@@ -1,4 +1,6 @@
 import express from "express";
+import cluster from "cluster";
+import os from "os";
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 import path from "path";
@@ -19,6 +21,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = "your_jwt_secret_key";
+
+const numCPUs = os.cpus().length;
 
 middleware(app);
 
@@ -88,9 +92,19 @@ async function startServer() {
   await connectToDatabase();
   await populateMockData(); // Only for demo purposes, to have some initial data in the database
 
-  app.listen(PORT, () => {
-    console.log(`Starting server at http://localhost:${PORT}`);
-  });
+  if (cluster.isPrimary) {
+    console.log(`Primary ${process.pid} is running`);
+    for (let i = 0; i < numCPUs; i++) {
+      cluster.fork();
+    }
+    cluster.on("exit", (worker, code, signal) => {
+      console.log(`Worker-process ${worker.process.pid} avslutades`);
+    });
+  } else {
+    app.listen(PORT, () => {
+      console.log(`Starting server at http://localhost:${PORT}`);
+    });
+  }
 }
 
 process.on("SIGINT", async () => {

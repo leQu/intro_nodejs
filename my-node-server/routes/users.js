@@ -1,21 +1,56 @@
 import { Router } from "express";
+// import redis from "redis";
 
 import { User } from "../models/User.js";
 import { authentication, authorize } from "../middleware/index.js";
 
+import logger from "../config/logger.js";
+
 const router = Router();
+
+const usersCache = {};
+
+// const client = redis.createClient({
+//   url: "redis://localhost:6379",
+// });
+
+// client.on("error", (err) => console.error("Redis Client Error", err));
+// await client.connect();
 
 router.get("/", authentication, async (req, res) => {
   const location = req.query.location; // e.g., /users?location=NYC
+  const userCacheKey = "usersKey";
+
   if (location) {
     console.log(location);
   }
+
+  if (
+    usersCache[userCacheKey] &&
+    Date.now() - usersCache[userCacheKey].timestamp < 60 * 1000
+  ) {
+    logger.info("Users fetched from cache");
+    return res.status(200).json(usersCache[userCacheKey].users);
+  }
+
   // Return all users from a database
   try {
+    // const cachedUsers = await client.get(userCacheKey);
+    // if (cachedUsers) {
+    //   console.log("Users fetched from cache");
+    //   return res.status(200).json(JSON.parse(cachedUsers));
+    // }
+
     const users = await User.find(); // SELECT * from users;
+    // await client.set(userCacheKey, JSON.stringify(users), {
+    //   EX: 60,
+    // });
+    usersCache[userCacheKey] = { users, timestamp: Date.now() };
+    logger.info("Users fetched from database, cache updated");
+
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
+    logger.info("Error fetching users:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
