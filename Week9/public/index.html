@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebSocket Test</title>
+  </head>
+  <body>
+    <h1>WebSocket Test</h1>
+
+    <div id="realtime-chat">
+      <h2>Real-time Chat</h2>
+      <ul id="messages"></ul>
+      <input id="message-input" type="text" placeholder="Type a message..." />
+      <button id="send-button">Send</button>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+      socket.on("chatMessage", (msg) => {
+        console.log(msg);
+        const messages = document.getElementById("messages");
+        const li = document.createElement("li");
+        li.textContent = msg;
+        messages.appendChild(li);
+      });
+
+      const sendButton = document.getElementById("send-button");
+      const messageInput = document.getElementById("message-input");
+
+      sendButton.addEventListener("click", () => {
+        const message = messageInput.value;
+        if (message) {
+          socket.emit("chatMessage", message);
+          messageInput.value = "";
+        }
+      });
+    </script>
+  </body>
+</html>
