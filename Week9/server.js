@@ -9,6 +9,7 @@ const app = express();
 const server = app.listen(3000, () =>
   console.log("Server is running on port 3000"),
 );
+const socketServer = new Server(server);
 // ______________________
 
 /* SETUP FILE PATHS AND SERVE HTML DOCUMENT*/
@@ -33,13 +34,14 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 app.post("/upload", upload.single("file"), (req, res) => {
+  // When file is uploaded we send a notification to all connected sockets.
+  socketServer.emit("newFileUploaded", req.file.originalname || "Unknown file");
   res.send("File uploaded successfully");
 });
 // ______________________
 
 /* SETUP WEBSOCKET SERVER WITH SOCKET.IO */
-const io = new Server(server);
-io.on("connection", (socket) => {
+socketServer.on("connection", (socket) => {
   console.log("A user connected");
   socket.on("chatMessage", (msg) => {
     console.log(msg);

@@ -24,6 +24,14 @@
         messages.appendChild(li);
       });
 
+      socket.on("newFileUploaded", (filename) => {
+        const messages = document.getElementById("messages");
+        const li = document.createElement("li");
+        li.textContent = `New file uploaded: ${filename}`;
+        alert(`New file uploaded: ${filename}`);
+        messages.appendChild(li);
+      });
+
       const sendButton = document.getElementById("send-button");
       const messageInput = document.getElementById("message-input");
 
